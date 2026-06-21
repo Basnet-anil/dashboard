@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard API Docs</title>
+<style>
+  :root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3e;--primary:#6366f1;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--blue:#3b82f6;--purple:#a855f7;--text:#e2e8f0;--muted:#64748b;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+  header{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:2rem 2.5rem;border-bottom:1px solid var(--border);}
+  header h1{font-size:1.8rem;font-weight:700;color:#fff;}
+  header p{color:#a5b4fc;margin-top:.3rem;font-size:.95rem;}
+  .badge{display:inline-block;padding:.15rem .5rem;border-radius:4px;font-size:.7rem;font-weight:700;letter-spacing:.05em;}
+  .badge-oas{background:#22c55e22;color:#22c55e;border:1px solid #22c55e44;}
+  .badge-live{background:#6366f122;color:#818cf8;border:1px solid #6366f144;}
+  .container{max-width:960px;margin:0 auto;padding:2rem 1.5rem;}
+  .server-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+  .server-box label{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;}
+  .server-box span{color:#818cf8;font-weight:600;font-size:.95rem;}
+  .group{margin-bottom:1.5rem;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .group-header{background:var(--card);padding:.9rem 1.2rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+  .group-header h2{font-size:1rem;font-weight:600;color:var(--text);}
+  .group-header small{color:var(--muted);font-size:.8rem;margin-left:.5rem;}
+  .group-header .arrow{transition:transform .2s;color:var(--muted);}
+  .group-header.open .arrow{transform:rotate(180deg);}
+  .group-body{display:none;}
+  .group-body.show{display:block;}
+  .endpoint{border-top:1px solid var(--border);padding:0;}
+  .ep-header{display:flex;align-items:center;gap:.8rem;padding:.8rem 1.2rem;cursor:pointer;transition:background .15s;}
+  .ep-header:hover{background:rgba(255,255,255,.03);}
+  .method{font-size:.72rem;font-weight:800;letter-spacing:.08em;padding:.25rem .5rem;border-radius:5px;min-width:52px;text-align:center;}
+  .GET{background:#22c55e22;color:#22c55e;border:1px solid #22c55e44;}
+  .POST{background:#3b82f622;color:#60a5fa;border:1px solid #3b82f644;}
+  .PUT{background:#eab30822;color:#fbbf24;border:1px solid #eab30844;}
+  .DELETE{background:#ef444422;color:#f87171;border:1px solid #ef444444;}
+  .ep-path{font-family:'Courier New',monospace;font-size:.88rem;color:var(--text);}
+  .ep-desc{color:var(--muted);font-size:.82rem;margin-left:auto;}
+  .ep-body{display:none;background:#12141f;border-top:1px solid var(--border);padding:1.2rem 1.5rem;}
+  .ep-body.show{display:block;}
+  .section-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.5rem;margin-top:1rem;}
+  .section-label:first-child{margin-top:0;}
+  .params-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+  .params-table th{text-align:left;padding:.4rem .6rem;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;}
+  .params-table td{padding:.4rem .6rem;border-bottom:1px solid #1e2030;vertical-align:top;}
+  .params-table td:first-child{font-family:'Courier New',monospace;color:#93c5fd;}
+  .req{color:#ef4444;font-size:.7rem;}
+  .opt{color:#64748b;font-size:.7rem;}
+  .code-block{background:#0a0b10;border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;font-family:'Courier New',monospace;font-size:.78rem;color:#a5f3fc;overflow-x:auto;white-space:pre;}
+  .responses{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.3rem;}
+  .res-badge{display:flex;align-items:center;gap:.35rem;padding:.2rem .6rem;border-radius:5px;font-size:.75rem;}
+  .res-200{background:#22c55e18;color:#22c55e;border:1px solid #22c55e33;}
+  .res-201{background:#3b82f618;color:#60a5fa;border:1px solid #3b82f633;}
+  .res-400{background:#eab30818;color:#fbbf24;border:1px solid #eab30833;}
+  .res-401{background:#f9731618;color:#fb923c;border:1px solid #f9731633;}
+  .res-404{background:#ef444418;color:#f87171;border:1px solid #ef444433;}
+  .res-409{background:#a855f718;color:#c084fc;border:1px solid #a855f733;}
+  .res-500{background:#6b728018;color:#94a3b8;border:1px solid #6b728033;}
+  .try-btn{background:var(--primary);color:#fff;border:none;padding:.4rem .9rem;border-radius:6px;font-size:.78rem;cursor:pointer;float:right;margin-top:-.5rem;}
+  .try-btn:hover{background:#4f46e5;}
+  .base-url{color:#818cf8;}
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;">
+    <h1>📊 Dashboard API</h1>
+    <span class="badge badge-oas">OAS 3.0</span>
+    <span class="badge badge-live">● LIVE</span>
+  </div>
+  <p>REST API for the Business Dashboard — Sales, Purchases, Customers, Vendors, Staff, Bank & Auth.</p>
+</header>
+
+<div class="container">
+  <div class="server-box">
+    <div><label>Base URL</label><br/><span class="base-url">http://localhost:5000</span></div>
+    <div><label>Content-Type</label><br/><span>application/json</span></div>
+    <div><label>Auth</label><br/><span>Bearer JWT (where applicable)</span></div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="group" id="g-auth">
+    <div class="group-header" onclick="toggleGroup('g-auth')">
+      <div><h2>Auth <small>— /api/auth</small></h2></div>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="group-body show">
+      <!-- POST /register -->
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('auth-register')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/auth/register</span>
+          <span class="ep-desc">Register a new admin user</span>
+        </div>
+        <div class="ep-body" id="auth-register">
+          <div class="section-label">Request Body</div>
+          <table class="params-table"><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>username</td><td>string</td><td><span class="req">required</span></td><td>Min 3, max 100 chars</td></tr>
+            <tr><td>password</td><td>string</td><td><span class="req">required</span></td><td>Min 8 chars</td></tr>
+          </table>
+          <div class="section-label">Example</div>
+          <div class="code-block">POST /api/auth/register
+{
+  "username": "admin",
+  "password": "securePass123"
+}</div>
+          <div class="section-label">Responses</div>
+          <div class="responses">
+            <span class="res-badge res-201">201 Created</span>
+            <span class="res-badge res-400">400 Validation Error</span>
+            <span class="res-badge res-409">409 User Exists</span>
+            <span class="res-badge res-500">500 Server Error</span>
+          </div>
+        </div>
+      </div>
+      <!-- POST /login -->
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('auth-login')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/auth/login</span>
+          <span class="ep-desc">Login and receive JWT token</span>
+        </div>
+        <div class="ep-body" id="auth-login">
+          <div class="section-label">Request Body</div>
+          <table class="params-table"><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>username</td><td>string</td><td><span class="req">required</span></td><td></td></tr>
+            <tr><td>password</td><td>string</td><td><span class="req">required</span></td><td></td></tr>
+          </table>
+          <div class="section-label">Response Body</div>
+          <div class="code-block">{
+  "token": "eyJhbGci...",
+  "user": { "id": "...", "username": "admin", "role": "admin" }
+}</div>
+          <div class="section-label">Responses</div>
+          <div class="responses">
+            <span class="res-badge res-200">200 OK</span>
+            <span class="res-badge res-401">401 Invalid Credentials</span>
+            <span class="res-badge res-500">500 Server Error</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="group" id="g-customers">
+    <div class="group-header" onclick="toggleGroup('g-customers')">
+      <div><h2>Customers <small>— /api/customers</small></h2></div>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="group-body show">
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('cust-list')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/customers</span>
+          <span class="ep-desc">List all customers</span>
+        </div>
+        <div class="ep-body" id="cust-list">
+          <div class="section-label">Query Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>name</td><td>string</td><td><span class="opt">optional</span></td><td>Filter by name (case-insensitive regex)</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses">
+            <span class="res-badge res-200">200 Customer[]</span>
+            <span class="res-badge res-500">500 Error</span>
+          </div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('cust-create')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/customers</span>
+          <span class="ep-desc">Create or update a customer</span>
+        </div>
+        <div class="ep-body" id="cust-create">
+          <div class="section-label">Request Body</div>
+          <table class="params-table"><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>name</td><td>string</td><td><span class="req">required</span></td><td>Max 100 chars. If exists, record is updated.</td></tr>
+            <tr><td>address</td><td>string</td><td><span class="opt">optional</span></td><td>Max 300 chars</td></tr>
+            <tr><td>phone</td><td>string</td><td><span class="opt">optional</span></td><td>Max 30 chars</td></tr>
+            <tr><td>pan</td><td>string</td><td><span class="opt">optional</span></td><td>PAN/VAT number</td></tr>
+            <tr><td>contact1</td><td>string</td><td><span class="opt">optional</span></td><td>Contact person 1</td></tr>
+            <tr><td>contact2</td><td>string</td><td><span class="opt">optional</span></td><td>Contact person 2</td></tr>
+            <tr><td>accountDetails</td><td>array</td><td><span class="opt">optional</span></td><td>Ledger rows (sn, invoiceNo, date, programs, debit, bank, acNo, recDate, discount, balance)</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses">
+            <span class="res-badge res-201">201 Created</span>
+            <span class="res-badge res-200">200 Updated</span>
+            <span class="res-badge res-400">400 Validation</span>
+            <span class="res-badge res-500">500 Error</span>
+          </div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('cust-delete')">
+          <span class="method DELETE">DELETE</span>
+          <span class="ep-path">/api/customers/:id</span>
+          <span class="ep-desc">Delete a customer by MongoDB ID</span>
+        </div>
+        <div class="ep-body" id="cust-delete">
+          <div class="section-label">Path Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>id</td><td>MongoID</td><td><span class="req">required</span></td><td>Customer's _id</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses">
+            <span class="res-badge res-200">200 Deleted document</span>
+            <span class="res-badge res-404">404 Not Found</span>
+            <span class="res-badge res-500">500 Error</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENDORS -->
+  <div class="group" id="g-vendors">
+    <div class="group-header" onclick="toggleGroup('g-vendors')">
+      <div><h2>Vendors <small>— /api/vendors</small></h2></div>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="group-body">
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('vend-list')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/vendors</span>
+          <span class="ep-desc">List all vendors</span>
+        </div>
+        <div class="ep-body" id="vend-list">
+          <div class="section-label">Query Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>name</td><td>string</td><td><span class="opt">optional</span></td><td>Filter by name (regex)</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Vendor[]</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('vend-create')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/vendors</span>
+          <span class="ep-desc">Create or update a vendor</span>
+        </div>
+        <div class="ep-body" id="vend-create">
+          <div class="section-label">Request Body</div>
+          <table class="params-table"><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>name</td><td>string</td><td><span class="req">required</span></td><td>If exists, record is updated</td></tr>
+            <tr><td>address</td><td>string</td><td><span class="opt">optional</span></td><td></td></tr>
+            <tr><td>phone</td><td>string</td><td><span class="opt">optional</span></td><td></td></tr>
+            <tr><td>pan</td><td>string</td><td><span class="opt">optional</span></td><td></td></tr>
+            <tr><td>accountDetails</td><td>array</td><td><span class="opt">optional</span></td><td>Ledger rows</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('vend-delete')">
+          <span class="method DELETE">DELETE</span>
+          <span class="ep-path">/api/vendors/:id</span>
+          <span class="ep-desc">Delete a vendor by MongoDB ID</span>
+        </div>
+        <div class="ep-body" id="vend-delete">
+          <div class="section-label">Path Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>id</td><td>MongoID</td><td><span class="req">required</span></td><td>Vendor's _id</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Deleted</span><span class="res-badge res-404">404 Not Found</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALES -->
+  <div class="group" id="g-sales">
+    <div class="group-header" onclick="toggleGroup('g-sales')">
+      <div><h2>Sales <small>— /api/sales</small></h2></div>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="group-body">
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('sales-monthly')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/sales/metrics/monthly</span>
+          <span class="ep-desc">Monthly sales metrics</span>
+        </div>
+        <div class="ep-body" id="sales-monthly">
+          <div class="section-label">Query Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>year</td><td>number</td><td><span class="opt">optional</span></td><td>Defaults to latest year in DB</td></tr>
+            <tr><td>month</td><td>number</td><td><span class="opt">optional</span></td><td>Defaults to latest month in DB</td></tr>
+          </table>
+          <div class="section-label">Response Body</div>
+          <div class="code-block">{
+  "month": 6, "year": 2081,
+  "totalBilled": 50000, "totalReceived": 30000,
+  "totalDue": 20000, "invoiceCount": 12
+}</div>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('sales-yearly')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/sales/metrics/yearly</span>
+          <span class="ep-desc">Yearly sales metrics</span>
+        </div>
+        <div class="ep-body" id="sales-yearly">
+          <div class="section-label">Query Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>year</td><td>number</td><td><span class="opt">optional</span></td><td>Defaults to latest year in DB</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('sales-list')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/sales</span>
+          <span class="ep-desc">List all sales (optionally by customer)</span>
+        </div>
+        <div class="ep-body" id="sales-list">
+          <div class="section-label">Query Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>customer</td><td>string</td><td><span class="opt">optional</span></td><td>Exact match (case-insensitive)</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Sale[]</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('sales-create')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/sales</span>
+          <span class="ep-desc">Create a sale (auto-links to customer ledger)</span>
+        </div>
+        <div class="ep-body" id="sales-create">
+          <div class="section-label">Request Body</div>
+          <table class="params-table"><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>sn</td><td>number</td><td><span class="opt">optional</span></td><td>Serial number</td></tr>
+            <tr><td>customer</td><td>string</td><td><span class="opt">optional</span></td><td>Customer name (auto-creates ledger entry)</td></tr>
+            <tr><td>date</td><td>string</td><td><span class="opt">optional</span></td><td>BS date (YYYY/MM/DD)</td></tr>
+            <tr><td>service</td><td>string</td><td><span class="opt">optional</span></td><td>Service description</td></tr>
+            <tr><td>total</td><td>number</td><td><span class="opt">optional</span></td><td>Total billed amount</td></tr>
+            <tr><td>received</td><td>number</td><td><span class="opt">optional</span></td><td>Amount received</td></tr>
+            <tr><td>discount</td><td>number</td><td><span class="opt">optional</span></td><td>Discount amount</td></tr>
+            <tr><td>receivedDate</td><td>string</td><td><span class="opt">optional</span></td><td>Payment received date</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-201">201 Created</span><span class="res-badge res-400">400 Validation</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('sales-update')">
+          <span class="method PUT">PUT</span>
+          <span class="ep-path">/api/sales/:id</span>
+          <span class="ep-desc">Update a sale (re-links customer ledger)</span>
+        </div>
+        <div class="ep-body" id="sales-update">
+          <div class="section-label">Path Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>id</td><td>MongoID</td><td><span class="req">required</span></td><td>Sale's _id</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Updated</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('sales-delete')">
+          <span class="method DELETE">DELETE</span>
+          <span class="ep-path">/api/sales/:id</span>
+          <span class="ep-desc">Delete a sale (removes from customer ledger)</span>
+        </div>
+        <div class="ep-body" id="sales-delete">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Deleted</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PURCHASES -->
+  <div class="group" id="g-purchases">
+    <div class="group-header" onclick="toggleGroup('g-purchases')">
+      <div><h2>Purchases <small>— /api/purchases</small></h2></div>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="group-body">
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('pur-monthly')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/purchases/metrics/monthly</span>
+          <span class="ep-desc">Monthly purchase metrics</span>
+        </div>
+        <div class="ep-body" id="pur-monthly">
+          <div class="section-label">Query Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>year</td><td>number</td><td><span class="opt">optional</span></td><td></td></tr>
+            <tr><td>month</td><td>number</td><td><span class="opt">optional</span></td><td></td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('pur-yearly')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/purchases/metrics/yearly</span>
+          <span class="ep-desc">Yearly purchase metrics</span>
+        </div>
+        <div class="ep-body" id="pur-yearly">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('pur-list')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/purchases</span>
+          <span class="ep-desc">List all purchases</span>
+        </div>
+        <div class="ep-body" id="pur-list">
+          <div class="section-label">Query Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>vendor</td><td>string</td><td><span class="opt">optional</span></td><td>Exact match (case-insensitive)</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Purchase[]</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('pur-create')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/purchases</span>
+          <span class="ep-desc">Create a purchase (auto-links to vendor ledger)</span>
+        </div>
+        <div class="ep-body" id="pur-create">
+          <div class="section-label">Request Body</div>
+          <table class="params-table"><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>vendor</td><td>string</td><td><span class="opt">optional</span></td><td>Vendor name</td></tr>
+            <tr><td>date</td><td>string</td><td><span class="opt">optional</span></td><td>BS date</td></tr>
+            <tr><td>particular</td><td>string</td><td><span class="opt">optional</span></td><td>Item description</td></tr>
+            <tr><td>total</td><td>number</td><td><span class="opt">optional</span></td><td>Total amount</td></tr>
+            <tr><td>discount</td><td>number</td><td><span class="opt">optional</span></td><td>Discount</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-201">201 Created</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('pur-update')">
+          <span class="method PUT">PUT</span>
+          <span class="ep-path">/api/purchases/:id</span>
+          <span class="ep-desc">Update a purchase</span>
+        </div>
+        <div class="ep-body" id="pur-update">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Updated</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('pur-delete')">
+          <span class="method DELETE">DELETE</span>
+          <span class="ep-path">/api/purchases/:id</span>
+          <span class="ep-desc">Delete a purchase (removes from vendor ledger)</span>
+        </div>
+        <div class="ep-body" id="pur-delete">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Deleted</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="group" id="g-staff">
+    <div class="group-header" onclick="toggleGroup('g-staff')">
+      <div><h2>Staff <small>— /api/staff</small></h2></div>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="group-body">
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('staff-list')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/staff</span>
+          <span class="ep-desc">List all staff</span>
+        </div>
+        <div class="ep-body" id="staff-list">
+          <div class="section-label">Query Parameters</div>
+          <table class="params-table"><tr><th>Param</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>name</td><td>string</td><td><span class="opt">optional</span></td><td>Filter by name (regex)</td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Staff[]</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('staff-create')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/staff</span>
+          <span class="ep-desc">Create or update staff member</span>
+        </div>
+        <div class="ep-body" id="staff-create">
+          <div class="section-label">Request Body (key fields)</div>
+          <table class="params-table"><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr>
+            <tr><td>name</td><td>string</td><td><span class="req">required</span></td><td>If exists, record is updated</td></tr>
+            <tr><td>position</td><td>string</td><td><span class="opt">optional</span></td><td></td></tr>
+            <tr><td>salary</td><td>number</td><td><span class="opt">optional</span></td><td></td></tr>
+          </table>
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANK -->
+  <div class="group" id="g-bank">
+    <div class="group-header" onclick="toggleGroup('g-bank')">
+      <div><h2>Bank Transactions <small>— /api/bank</small></h2></div>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="group-body">
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('bank-list')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/bank</span>
+          <span class="ep-desc">List all bank transactions</span>
+        </div>
+        <div class="ep-body" id="bank-list">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 BankTransaction[]</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('bank-create')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/bank</span>
+          <span class="ep-desc">Create a bank transaction</span>
+        </div>
+        <div class="ep-body" id="bank-create">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('bank-update')">
+          <span class="method PUT">PUT</span>
+          <span class="ep-path">/api/bank/:id</span>
+          <span class="ep-desc">Update a bank transaction</span>
+        </div>
+        <div class="ep-body" id="bank-update">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Updated</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('bank-delete')">
+          <span class="method DELETE">DELETE</span>
+          <span class="ep-path">/api/bank/:id</span>
+          <span class="ep-desc">Delete a bank transaction</span>
+        </div>
+        <div class="ep-body" id="bank-delete">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Deleted</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HR -->
+  <div class="group" id="g-hr">
+    <div class="group-header" onclick="toggleGroup('g-hr')">
+      <div><h2>HR <small>— /api/hr</small></h2></div>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="group-body">
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('hr-staff-list')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/hr/staff</span>
+          <span class="ep-desc">List all HR staff</span>
+        </div>
+        <div class="ep-body" id="hr-staff-list">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Staff[]</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('hr-staff-create')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/hr/staff</span>
+          <span class="ep-desc">Create HR staff member</span>
+        </div>
+        <div class="ep-body" id="hr-staff-create">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('hr-payroll-list')">
+          <span class="method GET">GET</span>
+          <span class="ep-path">/api/hr/payroll</span>
+          <span class="ep-desc">List all payroll records (populates staff)</span>
+        </div>
+        <div class="ep-body" id="hr-payroll-list">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 Payroll[]</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="ep-header" onclick="toggleEp('hr-payroll-create')">
+          <span class="method POST">POST</span>
+          <span class="ep-path">/api/hr/payroll</span>
+          <span class="ep-desc">Create a payroll record</span>
+        </div>
+        <div class="ep-body" id="hr-payroll-create">
+          <div class="section-label">Responses</div>
+          <div class="responses"><span class="res-badge res-200">200 OK</span><span class="res-badge res-500">500 Error</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:2rem 0;color:var(--muted);font-size:.8rem;">
+    Dashboard API Docs &nbsp;·&nbsp; http://localhost:5000/api-docs
+  </div>
+</div>
+
+<script>
+// Inject interactive testing UI into all endpoints
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.endpoint').forEach(ep => {
+    const methodSpan = ep.querySelector('.method');
+    const pathSpan = ep.querySelector('.ep-path');
+    if (!methodSpan || !pathSpan) return;
+    
+    const method = methodSpan.textContent.trim();
+    const path = pathSpan.textContent.trim();
+    const epBody = ep.querySelector('.ep-body');
+    
+    const tryDiv = document.createElement('div');
+    tryDiv.style.marginTop = '1.5rem';
+    tryDiv.style.padding = '1rem';
+    tryDiv.style.background = 'rgba(0,0,0,0.3)';
+    tryDiv.style.border = '1px solid var(--border)';
+    tryDiv.style.borderRadius = '8px';
+    
+    let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h4 style="color:#818cf8;margin:0;">⚡ Test Endpoint</h4>
+    </div>`;
+    
+    const pathParams = path.match(/:[a-zA-Z0-9_]+/g) || [];
+    if (pathParams.length > 0) {
+      pathParams.forEach(p => {
+        html += `<div style="margin-bottom:0.8rem"><label style="display:inline-block;width:60px;font-size:0.8rem;color:var(--muted);">${p}</label> <input type="text" class="param-input" data-param="${p}" placeholder="value" style="background:#1a1d27;border:1px solid #2a2d3e;color:white;padding:6px 10px;border-radius:4px;width:250px;font-family:monospace;font-size:0.8rem;"></div>`;
+      });
+    }
+    
+    // Also support query parameters natively based on table
+    const queryRows = ep.querySelectorAll('.params-table tr');
+    let hasQuery = false;
+    queryRows.forEach(row => {
+      const td = row.querySelector('td:first-child');
+      if(td && !pathParams.includes(':' + td.textContent.trim()) && !ep.querySelector('.body-input')) {
+         const p = td.textContent.trim();
+         if(p && p !== 'id' && p !== 'username' && p !== 'password' && method === 'GET') {
+            hasQuery = true;
+            html += `<div style="margin-bottom:0.8rem"><label style="display:inline-block;width:60px;font-size:0.8rem;color:var(--muted);">?${p}</label> <input type="text" class="query-input" data-param="${p}" placeholder="optional" style="background:#1a1d27;border:1px solid #2a2d3e;color:white;padding:6px 10px;border-radius:4px;width:250px;font-family:monospace;font-size:0.8rem;"></div>`;
+         }
+      }
+    });
+    
+    if (method === 'POST' || method === 'PUT') {
+      html += `<div style="margin-bottom:0.8rem"><label style="display:block;font-size:0.8rem;color:var(--muted);margin-bottom:0.4rem">Body (JSON)</label><textarea class="body-input" style="width:100%;height:120px;background:#1a1d27;border:1px solid #2a2d3e;color:white;padding:10px;border-radius:4px;font-family:monospace;font-size:0.8rem;resize:vertical;">{}</textarea></div>`;
+    }
+    
+    html += `<button class="run-btn" style="background:var(--primary);color:white;border:none;padding:8px 16px;border-radius:6px;font-weight:600;font-size:0.8rem;cursor:pointer;transition:all 0.2s;">▶ Execute Request</button>`;
+    
+    html += `<div class="res-container" style="display:none;margin-top:1.2rem;border-top:1px dashed var(--border);padding-top:1rem;">
+      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.05em;">Response</div>
+      <div class="res-status" style="font-weight:700;margin-bottom:0.6rem;font-size:0.85rem"></div>
+      <pre class="res-body" style="background:#0a0b10;border:1px solid var(--border);padding:12px;border-radius:6px;font-size:0.8rem;overflow-x:auto;max-height:400px;margin:0;"></pre>
+    </div>`;
+    
+    tryDiv.innerHTML = html;
+    epBody.appendChild(tryDiv);
+    
+    const runBtn = tryDiv.querySelector('.run-btn');
+    runBtn.addEventListener('mouseover', () => runBtn.style.opacity = '0.9');
+    runBtn.addEventListener('mouseout', () => runBtn.style.opacity = '1');
+    
+    runBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      let finalPath = path;
+      const inputs = tryDiv.querySelectorAll('.param-input');
+      inputs.forEach(inp => {
+         finalPath = finalPath.replace(inp.getAttribute('data-param'), encodeURIComponent(inp.value));
+      });
+      
+      const queryInputs = tryDiv.querySelectorAll('.query-input');
+      let queryParams = [];
+      queryInputs.forEach(inp => {
+         if(inp.value.trim()) {
+           queryParams.push(`${inp.getAttribute('data-param')}=${encodeURIComponent(inp.value)}`);
+         }
+      });
+      if(queryParams.length > 0) {
+         finalPath += '?' + queryParams.join('&');
+      }
+      
+      const reqOpts = { method, headers: {} };
+      
+      const token = localStorage.getItem('api_token');
+      if (token) reqOpts.headers['Authorization'] = `Bearer ${token}`;
+      
+      if (method === 'POST' || method === 'PUT') {
+        reqOpts.headers['Content-Type'] = 'application/json';
+        const bodyInput = tryDiv.querySelector('.body-input');
+        if (bodyInput && bodyInput.value.trim()) {
+           try {
+             JSON.parse(bodyInput.value);
+             reqOpts.body = bodyInput.value;
+           } catch(err) {
+             alert('Invalid JSON in body!');
+             return;
+           }
+        }
+      }
+      
+      const resContainer = tryDiv.querySelector('.res-container');
+      const resStatus = tryDiv.querySelector('.res-status');
+      const resBodyPre = tryDiv.querySelector('.res-body');
+      
+      resContainer.style.display = 'block';
+      resStatus.textContent = 'Sending request...';
+      resStatus.style.color = 'var(--muted)';
+      resBodyPre.textContent = '';
+      
+      try {
+        const start = Date.now();
+        const res = await fetch('http://localhost:5000' + finalPath, reqOpts);
+        const time = Date.now() - start;
+        
+        resStatus.textContent = `${res.status} ${res.statusText} (${time}ms)`;
+        resStatus.style.color = res.ok ? 'var(--green)' : 'var(--red)';
+        
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await res.json();
+          resBodyPre.textContent = JSON.stringify(data, null, 2);
+          resBodyPre.style.color = res.ok ? '#a5f3fc' : '#fca5a5';
+          
+          if (path === '/api/auth/login' && data.token) {
+             localStorage.setItem('api_token', data.token);
+             resStatus.textContent += ' — Token saved to Auth state!';
+          }
+        } else {
+          resBodyPre.textContent = await res.text();
+          resBodyPre.style.color = 'var(--text)';
+        }
+      } catch (err) {
+        resStatus.textContent = 'Network Error / CORS';
+        resStatus.style.color = 'var(--red)';
+        resBodyPre.textContent = err.message;
+        resBodyPre.style.color = 'var(--red)';
+      }
+    });
+  });
+});
+
+function toggleGroup(id){
+  const g=document.getElementById(id);
+  const body=g.querySelector('.group-body');
+  const header=g.querySelector('.group-header');
+  body.classList.toggle('show');
+  header.classList.toggle('open');
+}
+function toggleEp(id){
+  const el=document.getElementById(id);
+  el.classList.toggle('show');
+}
+// Init: open first group header
+document.querySelectorAll('.group-header').forEach((h,i)=>{
+  if(i<2) h.classList.add('open');
+});
+</script>
+</body>
+</html>

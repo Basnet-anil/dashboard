@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  title: Dashboard API
+  description: API Documentation for the Business Dashboard
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /api/auth/register:
+    post:
+      summary: Register Admin
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '201': { description: Created }
+  /api/auth/login:
+    post:
+      summary: Login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200': { description: Success }
+  /api/customers:
+    get:
+      summary: Get all customers
+      tags: [Customers]
+      responses:
+        '200': { description: Success }
+    post:
+      summary: Create or update customer
+      tags: [Customers]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                address: { type: string }
+                phone: { type: string }
+      responses:
+        '200': { description: Success }
+  /api/customers/{id}:
+    delete:
+      summary: Delete customer
+      tags: [Customers]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Deleted }
+  /api/vendors:
+    get:
+      summary: Get all vendors
+      tags: [Vendors]
+      responses:
+        '200': { description: Success }
+    post:
+      summary: Create or update vendor
+      tags: [Vendors]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+      responses:
+        '200': { description: Success }
+  /api/sales:
+    get:
+      summary: Get all sales
+      tags: [Sales]
+      responses:
+        '200': { description: Success }
+    post:
+      summary: Create a sale
+      tags: [Sales]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer: { type: string }
+                total: { type: number }
+                received: { type: number }
+      responses:
+        '201': { description: Created }
+  /api/purchases:
+    get:
+      summary: Get all purchases
+      tags: [Purchases]
+      responses:
+        '200': { description: Success }
+    post:
+      summary: Create a purchase
+      tags: [Purchases]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vendor: { type: string }
+                total: { type: number }
+      responses:
+        '201': { description: Created }
+  /api/staff:
+    get:
+      summary: Get staff
+      tags: [Staff]
+      responses:
+        '200': { description: Success }
+  /api/bank:
+    get:
+      summary: Get bank transactions
+      tags: [Bank]
+      responses:
+        '200': { description: Success }
